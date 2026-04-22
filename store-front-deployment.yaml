@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: store-front
+  namespace: bestbuy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: store-front
+  template:
+    metadata:
+      labels:
+        app: store-front
+    spec:
+      containers:
+        - name: store-front
+          image: vijayxavierwalter/bestbuy-store-front:latest
+          ports:
+            - containerPort: 80
