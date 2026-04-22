@@ -7,24 +7,43 @@
 This project is a **cloud-native microservices application** deployed on **Azure Kubernetes Service (AKS)**.
 It simulates a Best Buy–style system where users can browse products, place orders, and admins can manage/view those orders.
 
-The application follows a **microservices architecture** and uses **MongoDB for persistent storage**.
+The system follows a **microservices architecture** and uses **MongoDB for persistent storage**.
 
 ---
 
 ## 🏗️ Architecture Diagram
 
-👉 *(Insert your Draw.io diagram image here — very important for marks)*
+```mermaid
+flowchart LR
 
-Example:
+    %% User Layer
+    User["User (Browser)"]
 
-```text
-[ User ]
-   ↓
-[ Store Front (NGINX + Vue) ]  --->  [ Product Service ]
-           ↓
-     [ Order Service ]  --->  [ MongoDB ]
-           ↓
-     [ Store Admin ]
+    %% Frontend Layer
+    SF["Store Front<br/>(Vue + NGINX)"]
+    SA["Store Admin<br/>(Vue + NGINX)"]
+
+    %% Kubernetes Exposure
+    LB1["LoadBalancer<br/>Store Front"]
+    LB2["LoadBalancer<br/>Store Admin"]
+
+    %% Backend
+    PS["Product Service<br/>(Node.js / Fastify)"]
+    OS["Order Service<br/>(Node.js / Fastify)"]
+
+    %% Database
+    DB["MongoDB<br/>(Persistent Storage)"]
+
+    %% Flow
+    User --> LB1 --> SF
+    User --> LB2 --> SA
+
+    SF -->|GET /products| PS
+    SF -->|POST /order| OS
+
+    SA -->|GET /orders| OS
+
+    OS -->|Read / Write Orders| DB
 ```
 
 ---
@@ -33,18 +52,18 @@ Example:
 
 * **Store Front** → Customer UI (Vue + NGINX)
 * **Store Admin** → Admin UI (Vue + NGINX)
-* **Product Service** → Provides product data
-* **Order Service** → Handles order creation and retrieval
+* **Product Service** → Provides product data (Node.js / Fastify)
+* **Order Service** → Handles order creation & retrieval (Node.js / Fastify)
 * **MongoDB** → Stores orders persistently
 
 ---
 
 ## 🔁 Application Flow
 
-1. User opens Store Front → requests products from `product-service`
-2. User places an order → request goes to `order-service`
+1. User opens Store Front → fetches products from `product-service`
+2. User places order → request goes to `order-service`
 3. `order-service` stores order in **MongoDB**
-4. Admin UI fetches orders from `order-service`
+4. Store Admin fetches orders from `order-service`
 5. Orders are retrieved from MongoDB
 
 ---
@@ -81,17 +100,6 @@ bestbuy-cloud-native-deployment/
 
 ---
 
-## 🐳 Docker Images
-
-| Service         | Docker Image                                     |
-| --------------- | ------------------------------------------------ |
-| Product Service | vijayxavierwalter/bestbuy-product-service:latest |
-| Order Service   | vijayxavierwalter/bestbuy-order-service:latest   |
-| Store Front     | vijayxavierwalter/bestbuy-store-front:latest     |
-| Store Admin     | vijayxavierwalter/bestbuy-store-admin:latest     |
-
----
-
 ## 🔗 Links Table (Required)
 
 | Component                    | Link                                                               |
@@ -105,6 +113,17 @@ bestbuy-cloud-native-deployment/
 | Docker Hub - Order Service   | https://hub.docker.com/r/vijayxavierwalter/bestbuy-order-service   |
 | Docker Hub - Store Front     | https://hub.docker.com/r/vijayxavierwalter/bestbuy-store-front     |
 | Docker Hub - Store Admin     | https://hub.docker.com/r/vijayxavierwalter/bestbuy-store-admin     |
+
+---
+
+## 🐳 Docker Images
+
+| Service         | Image                                            |
+| --------------- | ------------------------------------------------ |
+| Product Service | vijayxavierwalter/bestbuy-product-service:latest |
+| Order Service   | vijayxavierwalter/bestbuy-order-service:latest   |
+| Store Front     | vijayxavierwalter/bestbuy-store-front:latest     |
+| Store Admin     | vijayxavierwalter/bestbuy-store-admin:latest     |
 
 ---
 
@@ -164,12 +183,7 @@ kubectl get svc -n bestbuy
 ### Why MongoDB?
 
 Initially, the application used **in-memory storage**, which caused data loss when containers restarted.
-
-MongoDB was introduced to:
-
-* Persist order data
-* Enable scalability
-* Follow cloud-native best practices
+MongoDB was introduced to provide **persistent, scalable storage**.
 
 ---
 
@@ -181,11 +195,25 @@ mongodb://mongodb:27017
 
 ---
 
+### Environment Variables (Order Service)
+
+```yaml
+env:
+  - name: MONGO_URL
+    value: "mongodb://mongodb:27017"
+  - name: MONGO_DB_NAME
+    value: "bestbuy"
+  - name: MONGO_COLLECTION_NAME
+    value: "orders"
+```
+
+---
+
 ## 🧪 MongoDB Testing
 
-### Persistence Test
+### ✔ Persistence Test
 
-1. Place order
+1. Place an order
 2. Restart service:
 
 ```bash
@@ -194,11 +222,11 @@ kubectl rollout restart deployment order-service -n bestbuy
 
 3. Refresh admin
 
-👉 Order remains → MongoDB working
+👉 Order still exists → MongoDB working
 
 ---
 
-### Direct DB Query
+### ✔ Direct Database Query
 
 ```bash
 kubectl exec -it deploy/mongodb -n bestbuy -- mongosh
@@ -213,19 +241,19 @@ db.orders.find().pretty()
 
 ## 🔧 Key Issues & Fixes
 
-| Issue                 | Fix                 |
-| --------------------- | ------------------- |
-| NGINX config error    | Fixed `server {}`   |
-| Service communication | Used Kubernetes DNS |
-| Fastify binding       | Set `0.0.0.0`       |
-| MongoDB error         | Fixed `crypto`      |
-| Data loss             | Added MongoDB       |
+| Issue                         | Fix                         |
+| ----------------------------- | --------------------------- |
+| NGINX config error            | Fixed `server {}` structure |
+| Service communication failure | Used Kubernetes DNS         |
+| Fastify binding issue         | Set `0.0.0.0`               |
+| MongoDB error                 | Fixed `crypto` dependency   |
+| Data loss                     | Introduced MongoDB          |
 
 ---
 
 ## 🎥 Demo Video
 
-👉 *(Add YouTube link here)*
+👉 *(Add your YouTube link here)*
 
 ---
 
@@ -243,6 +271,6 @@ This project demonstrates:
 * Docker containerization
 * Kubernetes orchestration (AKS)
 * Persistent storage using MongoDB
-* End-to-end cloud deployment
+* End-to-end cloud-native deployment
 
 ---
