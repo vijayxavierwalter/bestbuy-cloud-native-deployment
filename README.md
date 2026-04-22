@@ -52,8 +52,8 @@ flowchart LR
 
 * **Store Front** → Customer UI (Vue + NGINX)
 * **Store Admin** → Admin UI (Vue + NGINX)
-* **Product Service** → Provides product data (Node.js / Fastify)
-* **Order Service** → Handles order creation & retrieval (Node.js / Fastify)
+* **Product Service** → Provides product data  
+* **Order Service** → Handles order creation & retrieval  
 * **MongoDB** → Stores orders persistently
 
 ---
