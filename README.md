@@ -2,12 +2,25 @@
 
 ---
 
+Vijay Xavier Walter.     
+041276252.     
+CST8915 Full-stack Cloud-native Development.      
+Winter 2026.      
+
+---
+
 ## 📌 Project Overview
 
 This project is a **cloud-native microservices application** deployed on **Azure Kubernetes Service (AKS)**.
 It simulates a Best Buy–style system where users can browse products, place orders, and admins can manage/view those orders.
 
 The system follows a **microservices architecture** and uses **MongoDB for persistent storage**.
+
+---
+
+## 🎥 Demo Video
+
+👉 *(Add your YouTube link here)*
 
 ---
 
@@ -72,7 +85,7 @@ flowchart LR
 
 * Docker 🐳
 * Kubernetes (AKS) ☸️
-* Node.js (Fastify)
+* Node.js  
 * MongoDB 🍃
 * NGINX
 * Azure CLI
@@ -236,24 +249,6 @@ kubectl exec -it deploy/mongodb -n bestbuy -- mongosh
 use bestbuy
 db.orders.find().pretty()
 ```
-
----
-
-## 🔧 Key Issues & Fixes
-
-| Issue                         | Fix                         |
-| ----------------------------- | --------------------------- |
-| NGINX config error            | Fixed `server {}` structure |
-| Service communication failure | Used Kubernetes DNS         |
-| Fastify binding issue         | Set `0.0.0.0`               |
-| MongoDB error                 | Fixed `crypto` dependency   |
-| Data loss                     | Introduced MongoDB          |
-
----
-
-## 🎥 Demo Video
-
-👉 *(Add your YouTube link here)*
 
 ---
 
