@@ -1,26 +1,51 @@
-# 🛒 Best Buy Cloud-Native Microservices Application
+# 🛒 Best Buy Cloud-Native Microservices Application (AKS + MongoDB)
+
+---
 
 ## 📌 Project Overview
 
 This project is a **cloud-native microservices application** deployed on **Azure Kubernetes Service (AKS)**.
-It simulates a simplified Best Buy system with product browsing, order placement, and admin management.
+It simulates a Best Buy–style system where users can browse products, place orders, and admins can manage/view those orders.
+
+The application follows a **microservices architecture** and uses **MongoDB for persistent storage**.
 
 ---
 
-## 🏗️ Architecture
+## 🏗️ Architecture Diagram
 
-The application is built using a **microservices architecture**:
+👉 *(Insert your Draw.io diagram image here — very important for marks)*
 
-* **Store Front (Frontend)** → Customer UI
-* **Store Admin (Frontend)** → Admin UI
-* **Product Service (Backend)** → Handles product data
-* **Order Service (Backend)** → Handles orders
+Example:
 
-### 🔁 Flow
+```text
+[ User ]
+   ↓
+[ Store Front (NGINX + Vue) ]  --->  [ Product Service ]
+           ↓
+     [ Order Service ]  --->  [ MongoDB ]
+           ↓
+     [ Store Admin ]
+```
 
-1. User browses products → `product-service`
-2. User places order → `order-service`
-3. Admin views orders → `order-service`
+---
+
+## 🏗️ Architecture Components
+
+* **Store Front** → Customer UI (Vue + NGINX)
+* **Store Admin** → Admin UI (Vue + NGINX)
+* **Product Service** → Provides product data
+* **Order Service** → Handles order creation and retrieval
+* **MongoDB** → Stores orders persistently
+
+---
+
+## 🔁 Application Flow
+
+1. User opens Store Front → requests products from `product-service`
+2. User places an order → request goes to `order-service`
+3. `order-service` stores order in **MongoDB**
+4. Admin UI fetches orders from `order-service`
+5. Orders are retrieved from MongoDB
 
 ---
 
@@ -29,6 +54,7 @@ The application is built using a **microservices architecture**:
 * Docker 🐳
 * Kubernetes (AKS) ☸️
 * Node.js (Fastify)
+* MongoDB 🍃
 * NGINX
 * Azure CLI
 * GitHub
@@ -37,10 +63,12 @@ The application is built using a **microservices architecture**:
 
 ## 📂 Project Structure
 
-```
+```text
 bestbuy-cloud-native-deployment/
 │
 ├── namespace.yaml
+├── mongodb-deployment.yaml
+├── mongodb-service.yaml
 ├── product-service-deployment.yaml
 ├── product-service-service.yaml
 ├── order-service-deployment.yaml
@@ -55,16 +83,32 @@ bestbuy-cloud-native-deployment/
 
 ## 🐳 Docker Images
 
-| Service         | Docker Image                                       |
-| --------------- | -------------------------------------------------- |
-| Product Service | `vijayxavierwalter/bestbuy-product-service:latest` |
-| Order Service   | `vijayxavierwalter/bestbuy-order-service:latest`   |
-| Store Front     | `vijayxavierwalter/bestbuy-store-front:latest`     |
-| Store Admin     | `vijayxavierwalter/bestbuy-store-admin:latest`     |
+| Service         | Docker Image                                     |
+| --------------- | ------------------------------------------------ |
+| Product Service | vijayxavierwalter/bestbuy-product-service:latest |
+| Order Service   | vijayxavierwalter/bestbuy-order-service:latest   |
+| Store Front     | vijayxavierwalter/bestbuy-store-front:latest     |
+| Store Admin     | vijayxavierwalter/bestbuy-store-admin:latest     |
 
 ---
 
-## ☸️ Kubernetes Deployment (AKS)
+## 🔗 Links Table (Required)
+
+| Component                    | Link                                                               |
+| ---------------------------- | ------------------------------------------------------------------ |
+| Store Front Repo             | *(add GitHub link)*                                                |
+| Store Admin Repo             | *(add GitHub link)*                                                |
+| Product Service Repo         | *(add GitHub link)*                                                |
+| Order Service Repo           | *(add GitHub link)*                                                |
+| Deployment Repo              | *(add GitHub link)*                                                |
+| Docker Hub - Product Service | https://hub.docker.com/r/vijayxavierwalter/bestbuy-product-service |
+| Docker Hub - Order Service   | https://hub.docker.com/r/vijayxavierwalter/bestbuy-order-service   |
+| Docker Hub - Store Front     | https://hub.docker.com/r/vijayxavierwalter/bestbuy-store-front     |
+| Docker Hub - Store Admin     | https://hub.docker.com/r/vijayxavierwalter/bestbuy-store-admin     |
+
+---
+
+## ☸️ AKS Deployment Instructions
 
 ### 1️⃣ Create Resource Group
 
@@ -90,16 +134,12 @@ az aks get-credentials \
   --name bestbuy-aks-cluster
 ```
 
----
-
-### 4️⃣ Deploy to Kubernetes
+### 4️⃣ Deploy Application
 
 ```bash
 kubectl apply -f namespace.yaml
 kubectl apply -f .
 ```
-
----
 
 ### 5️⃣ Verify Deployment
 
@@ -119,44 +159,73 @@ kubectl get svc -n bestbuy
 
 ---
 
-## ✅ Features Implemented
+## 🗄️ MongoDB Integration
 
-* Browse products
-* Add items to cart
-* Place orders
-* View orders in admin dashboard
-* Microservices communication via Kubernetes
-* Containerized using Docker
-* Deployed to AKS
+### Why MongoDB?
+
+Initially, the application used **in-memory storage**, which caused data loss when containers restarted.
+
+MongoDB was introduced to:
+
+* Persist order data
+* Enable scalability
+* Follow cloud-native best practices
 
 ---
 
-## 🔧 Key Fixes & Learnings
+### MongoDB Connection
 
-* Fixed **NGINX config issue** (`location directive not allowed`)
-* Fixed **service communication issue** using Kubernetes service names
-* Fixed **Fastify binding issue** by using:
+```text
+mongodb://mongodb:27017
+```
 
-  ```
-  -a 0.0.0.0
-  ```
-* Ensured all services run inside same Kubernetes namespace
+---
+
+## 🧪 MongoDB Testing
+
+### Persistence Test
+
+1. Place order
+2. Restart service:
+
+```bash
+kubectl rollout restart deployment order-service -n bestbuy
+```
+
+3. Refresh admin
+
+👉 Order remains → MongoDB working
+
+---
+
+### Direct DB Query
+
+```bash
+kubectl exec -it deploy/mongodb -n bestbuy -- mongosh
+```
+
+```js
+use bestbuy
+db.orders.find().pretty()
+```
+
+---
+
+## 🔧 Key Issues & Fixes
+
+| Issue                 | Fix                 |
+| --------------------- | ------------------- |
+| NGINX config error    | Fixed `server {}`   |
+| Service communication | Used Kubernetes DNS |
+| Fastify binding       | Set `0.0.0.0`       |
+| MongoDB error         | Fixed `crypto`      |
+| Data loss             | Added MongoDB       |
 
 ---
 
 ## 🎥 Demo Video
 
-👉 *(Add your YouTube link here)*
-
----
-
-## 📎 GitHub Repositories
-
-* Store Front: *(add link)*
-* Store Admin: *(add link)*
-* Product Service: *(add link)*
-* Order Service: *(add link)*
-* Deployment Repo: *(add link)*
+👉 *(Add YouTube link here)*
 
 ---
 
@@ -171,8 +240,9 @@ kubectl get svc -n bestbuy
 This project demonstrates:
 
 * Microservices architecture
-* Containerization with Docker
-* Orchestration using Kubernetes
-* Cloud deployment using Azure AKS
+* Docker containerization
+* Kubernetes orchestration (AKS)
+* Persistent storage using MongoDB
+* End-to-end cloud deployment
 
 ---
