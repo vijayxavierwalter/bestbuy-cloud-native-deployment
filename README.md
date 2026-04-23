@@ -117,11 +117,11 @@ bestbuy-cloud-native-deployment/
 
 | Component                    | Link                                                               |
 | ---------------------------- | ------------------------------------------------------------------ |
-| Store Front Repo             | *(add GitHub link)*                                                |
-| Store Admin Repo             | *(add GitHub link)*                                                |
-| Product Service Repo         | *(add GitHub link)*                                                |
-| Order Service Repo           | *(add GitHub link)*                                                |
-| Deployment Repo              | *(add GitHub link)*                                                |
+| Store Front Repo             | https://github.com/vijayxavierwalter/bestbuy-store-front.git       |
+| Store Admin Repo             | https://github.com/vijayxavierwalter/bestbuy-store-admin.git       |
+| Product Service Repo         | https://github.com/vijayxavierwalter/bestbuy-product-service.git   |
+| Order Service Repo           | https://github.com/vijayxavierwalter/bestbuy-order-service.git     |
+| Makeline Repo                | https://github.com/vijayxavierwalter/bestbuy-makeline-service.git  |
 | Docker Hub - Product Service | https://hub.docker.com/r/vijayxavierwalter/bestbuy-product-service |
 | Docker Hub - Order Service   | https://hub.docker.com/r/vijayxavierwalter/bestbuy-order-service   |
 | Docker Hub - Store Front     | https://hub.docker.com/r/vijayxavierwalter/bestbuy-store-front     |
