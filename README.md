@@ -20,7 +20,7 @@ The system follows a **microservices architecture** and uses **MongoDB for persi
 
 ## 🎥 Demo Video
 
-👉 *(https://youtu.be/rEgFFaY3_Mc)*
+👉 *(https://youtu.be/JQD8jn1Cz2A)*
 
 ---
 
